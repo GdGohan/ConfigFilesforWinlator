@@ -1,0 +1,98 @@
+apt update && apt upgrade -y
+pkg update && pkg upgrade -y
+pkg install wget -y
+termux-setup-storage -y
+pkg install file -y
+
+pkg install x11-repo -y
+pkg install termux-x11 -y
+pkg install pulseaudio -y
+
+pkg install proot-distro -y
+
+pkg install tur-repo -y
+
+pkg install libicu -y
+pkg install mesa-demos -y
+pkg install vulkan-tools -y
+pkg install alsa-utils -y
+
+pulseaudio --start --exit-idle-time=-1
+pacmd load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1
+
+proot-distro install ubuntu
+proot-distro login ubuntu --shared-tmp
+
+apt update -y
+apt install sudo nano adduser -y
+adduser droidmaster
+# passwd droidmaster
+nano /etc/sudoers
+
+## Add the following line to the file (below the "root")
+droidmaster ALL=(ALL:ALL) ALL
+
+ctrl + o, enter
+ctrl + x
+
+exit
+
+proot-distro login ubuntu --user droidmaster --shared-tmp
+apt install sudo nano -y 
+sudo apt install wget -y
+sudo apt install python3 cmake build-essential git -y
+git clone https://github.com/ptitSeb/box64
+cd box64 && mkdir build && cd build && cmake .. && make && sudo make install && cd
+
+sudo apt-get install libllvm15
+wget https://github.com/sabamdarif/termux-desktop/releases/download/mesa-vulkan/mesa-vulkan-kgsl_24.1.0-devel-20240120_arm64.deb -O mesa-vulkan-kgsl.deb
+sudo dpkg -i mesa-vulkan-kgsl.deb
+
+sudo apt-get -f install -y
+sudo apt-get install alsa-utils -y
+sudo apt install libmono-system-windows-forms4.0-cil mono-complete -y
+sudo apt install xcursor-themes -y
+
+sudo apt install libssl-dev zlib1g-dev libcurl4-openssl-dev -y
+
+sudo apt install vulkan-tools mesa-vulkan-drivers -y
+sudo apt install mesa-utils libgl1-mesa-glx libgl1-mesa-dri -y
+sudo apt install libegl1-mesa -y
+sudo apt-get install mono-runtime -y
+echo 'export XDG_RUNTIME_DIR=/run/user/$(id -u)' >> ~/.bashrc
+source ~/.bashrc
+
+wget https://dot.net/v1/dotnet-install.sh -O dotnet-install.sh
+chmod +x ./dotnet-install.sh
+./dotnet-install.sh --version latest
+echo 'export DOTNET_ROOT=$HOME/.dotnet' >> .bashrc
+echo 'export PATH=$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools' >> .bashrc
+echo 'export DOTNET_GCHeapHardLimit=536870912' >> .bashrc
+source .bashrc
+
+pkg install clang -y
+wget https://github.com/unicode-org/icu/releases/download/release-75-1/icu4c-75_1-src.tgz
+mkdir -p ~/icu/icu75
+tar -xvzf icu4c-75_1-src.tgz -C ~/icu/icu75
+cd ~/icu/icu75/icu/source
+./runConfigureICU Linux
+make
+sudo make install
+
+## Game Folder
+cp -r "/sdcard/Download/Project/linux" "$HOME/linux"
+
+exit
+
+pulseaudio --start --exit-idle-time=-1
+pacmd load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1
+termux-x11 :0 &
+proot-distro login ubuntu --user droidmaster --shared-tmp
+chmod +x "./linux/Project Reignition.x86_64" && PULSE_SERVER=127.0.0.1 BOX64_DYNAREC_STRONGMEM=3 WAYLAND_DISPLAY=wayland-0 DISPLAY=:0 box64 "./linux/Project Reignition.x86_64" --rendering-driver vulkan --headless --verbose > /sdcard/Download/Project/godot_log.txt 2>&1 &
+
+
+# kill termux-x11 (if needed)
+kill -9 $(pgrep -f "termux.x11") 2>/dev/null
+
+# --rendering-driver, valid options are 'vulkan', 'opengl3', 'opengl3_es', 'dummy', .
+# --rendering-method forward_plus mobile gl_compatibility
